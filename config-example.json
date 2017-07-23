@@ -1,0 +1,17 @@
+{
+    "bot": false,
+    "token": "bottoken",
+    "username": "username@example.com",
+    "password": "hunter2",
+    "private": true,
+    "servers": [
+        "123456789"
+    ],
+    "modules": {
+        "kitty": {
+            "enabled": true,
+            "location": "C:/pictures/",
+            "max_pics": 5
+        }
+    }
+}
