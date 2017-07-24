@@ -10,4 +10,3 @@ class Event(Enum):
     ON_READY = auto()
     ON_MESSAGE = auto()
     ON_MESSAGE_DELETE = auto()
-    #ON_MESSAGE_EDIT = 4

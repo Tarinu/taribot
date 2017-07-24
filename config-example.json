@@ -8,8 +8,10 @@
         "123456789"
     ],
     "modules": {
-        "kitty": {
+        "Kitty": {
             "enabled": true,
+            "keyword": "!cat",
+            "private_only": true,
             "location": "C:/pictures/",
             "max_pics": 5
         }
