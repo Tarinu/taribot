@@ -33,7 +33,7 @@ class Kitty(Module, LocalImage):
         @param message:
         """
         content = message.clean_content.strip()  # type: str
-        if (message.channel.is_private or not self.config['private_only'] and not message.channel.is_private) and content.startswith(self.config['keyword']):
+        if (message.channel.is_private or not self.config['private_only'] and not message.channel.is_private) and content.lower().startswith(self.config['keyword']):
             split = content.split()  # type: [str]
             if len(split) >= 2:
                 if split[1].isnumeric():
