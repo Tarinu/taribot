@@ -11,7 +11,6 @@ from event import Event
 
 class Server(object):
     def __init__(self):
-        logging.basicConfig(level=logging.WARNING)
         with open("config.json") as file:
             self.config = json.load(file)
         self.client = discord.Client()  # type: discord.Client
@@ -52,6 +51,8 @@ class Server(object):
 
         @param message:
         """
+        if message.author != self.client.user:
+            print(self.format_message(message))
         for func in self.events[Event.ON_MESSAGE]:
             await func(message)
 
@@ -69,8 +70,10 @@ class Server(object):
         if message.attachments:
             for attachment in message.attachments:
                 output.append(attachment['url'])
-        return "[{}] {}: {}".format(
+        return "[{}][{}][{}] {}: {}".format(
             message.timestamp.replace(tzinfo=timezone.utc).astimezone(tz=None),
+            str(message.server) if message.server is not None else '-',
+            str(message.channel),
             message.author.name,
             ' '.join(output)
         )

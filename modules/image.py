@@ -3,7 +3,11 @@
 from random import choice
 from exceptions import ConfigException
 from glob import glob
+from datetime import datetime
 import discord
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class LocalImage(object):
@@ -35,9 +39,13 @@ class LocalImage(object):
         @param destination: Channel where the image should be sent
         @param count: Number of images to send
         """
-        for i in range(count):
-            with open(self.get_random_image(), mode="rb") as file:
-                await self.client.send_file(destination, file)
+        try:
+            for i in range(count):
+                with open(self.get_random_image(), mode="rb") as file:
+                    await self.client.send_file(destination, file)
+        except discord.errors.Forbidden as e:
+            logger.warning("[{}:{}][{}]: {}".format(str(destination.server), destination.server.id,str(destination), str(e)))
+            await self.client.send_message(destination, "No permission to send an attachment")
 
 
 class WebImage(object):
