@@ -79,7 +79,4 @@ class Server(object):
         """
         Main method that starts the whole server
         """
-        if self.config['bot']:
-            self.client.run(self.config['token'])
-        else:
-            self.client.run(self.config['username'], self.config['password'])
+        self.client.run(self.config['token'], bot=self.config['bot'])

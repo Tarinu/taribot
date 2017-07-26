@@ -1,15 +1,13 @@
 {
-    "bot": false,
+    "bot": true,
     "token": "bottoken",
-    "username": "username@example.com",
-    "password": "hunter2",
     "private": true,
     "servers": [
         "123456789"
     ],
     "modules": {
         "Kitty": {
-            "enabled": true,
+            "enabled": false,
             "keyword": "!cat",
             "private_only": true,
             "location": "C:/pictures/",
