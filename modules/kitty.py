@@ -5,6 +5,7 @@ from event import Event
 from module import Module
 from modules.image import LocalImage
 from exceptions import ConfigException
+from apis import Gfycat
 
 
 class Kitty(Module, LocalImage):
@@ -14,6 +15,9 @@ class Kitty(Module, LocalImage):
             LocalImage.__init__(self, config['location'], server.client)
         except KeyError:
             raise ConfigException("Kitty module is missing 'location' config")
+        self.gfycat = None
+        if config.get('gfycat', {}).get('enabled', False):
+            self.gfycat = Gfycat(config.get('gfycat'))
         self.config = config  # type: dict
         self.server = server  # type: server.Server
         self.add_handler(Event.ON_READY, self.on_ready)
@@ -23,6 +27,10 @@ class Kitty(Module, LocalImage):
         """
         Discord's on_ready event.
         """
+        commands = ["!cat <int>"]
+        if self.gfycat is not None:
+            commands.append("!catvid")
+        await self.client.change_presence(game=discord.Game(name=", ".join(commands)))
         print('Kitty module loaded')
 
     async def on_message(self, message: discord.Message):
@@ -33,18 +41,22 @@ class Kitty(Module, LocalImage):
         @param message:
         """
         content = message.clean_content.strip()  # type: str
-        if (message.channel.is_private or not self.config['private_only'] and not message.channel.is_private) and content.lower().startswith(self.config['keyword']):
-            split = content.split()  # type: [str]
-            if len(split) >= 2:
-                if split[1].isnumeric():
-                    count = int(split[1])
-                    if self.config['max_pics'] >= count >= 1:
-                        await self.send_image(message.channel, count)
-                    elif count <= 1:
-                        await self.client.send_message(message.channel, 'Picture count has to be at least 1')
+        split = content.split()  # type: [str]
+        if len(split) >= 1 and (message.channel.is_private or not self.config['private_only'] and not message.channel.is_private):
+            if split[0].lower() == self.config['keyword']:
+                if len(split) >= 2:
+                    if split[1].isnumeric():
+                        count = int(split[1])
+                        if self.config['max_pics'] >= count >= 1:
+                            await self.send_image(message.channel, count)
+                        elif count <= 1:
+                            await self.client.send_message(message.channel, 'Picture count has to be at least 1')
+                        else:
+                            await self.client.send_message(message.channel, 'Picture count can be maximum {}'.format(self.config['max_pics']))
                     else:
-                        await self.client.send_message(message.channel, 'Picture count can be maximum {}'.format(self.config['max_pics']))
+                        await self.client.send_message(message.channel, 'Picture count has to be an integer')
                 else:
-                    await self.client.send_message(message.channel, 'Picture count has to be an integer')
-            else:
-                await self.send_image(message.channel)
+                    await self.send_image(message.channel)
+            elif split[0].lower() == '!catvid':
+                url = await self.gfycat.get_random_gfycat()
+                await self.client.send_message(message.channel, url)

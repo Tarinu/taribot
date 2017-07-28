@@ -42,7 +42,7 @@ class Server(object):
         @todo Change it to use pooled callbacks
         @param message: Message object given back from the discord's api
         """
-        if self.config['private'] and message.channel.is_private or len(self.config['servers']) == 0 or message.server.id in self.config['servers']:
+        if len(self.config['servers']) == 0 or message.server.id in self.config['servers']:
             print(self.format_message(message))
 
     async def on_message(self, message: discord.Message):

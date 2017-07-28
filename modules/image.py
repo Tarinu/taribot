@@ -3,7 +3,6 @@
 from random import choice
 from exceptions import ConfigException
 from glob import glob
-from datetime import datetime
 import discord
 import logging
 
