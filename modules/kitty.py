@@ -19,7 +19,6 @@ class Kitty(Module, LocalImage):
         if config.get('gfycat', {}).get('enabled', False):
             self.gfycat = Gfycat(config.get('gfycat'))
         self.config = config  # type: dict
-        self.server = server  # type: server.Server
         self.add_handler(Event.ON_READY, self.on_ready)
         self.add_handler(Event.ON_MESSAGE, self.on_message)
 
@@ -57,6 +56,6 @@ class Kitty(Module, LocalImage):
                         await self.client.send_message(message.channel, 'Picture count has to be an integer')
                 else:
                     await self.send_image(message.channel)
-            elif split[0].lower() == '!catvid':
+            elif split[0].lower() == self.gfycat.config.get('keyword'):
                 url = await self.gfycat.get_random_gfycat()
                 await self.client.send_message(message.channel, url)

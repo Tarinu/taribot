@@ -39,11 +39,10 @@ class Server(object):
         This function gets triggered when one of the messages in the message cache gets deleted (defaults to last 5000 messages)
         @see http://discordpy.readthedocs.io/en/latest/api.html#discord.on_message_delete
 
-        @todo Change it to use pooled callbacks
         @param message: Message object given back from the discord's api
         """
-        if len(self.config['servers']) == 0 or message.server.id in self.config['servers']:
-            print(self.format_message(message))
+        for func in self.events[Event.ON_MESSAGE_DELETE]:
+            await func(message)
 
     async def on_message(self, message: discord.Message):
         """
@@ -56,7 +55,8 @@ class Server(object):
         for func in self.events[Event.ON_MESSAGE]:
             await func(message)
 
-    def format_message(self, message: discord.Message):
+    @staticmethod
+    def format_message(message: discord.Message):
         """
         Formats the message to readable format so it's possible to log them in console
 
