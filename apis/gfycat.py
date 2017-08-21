@@ -23,7 +23,10 @@ class Gfycat(object):
         async with self.session.get('https://api.gfycat.com/v1/me/albums/'+self.config['album_id'],
                                     headers=self.header) as resp:
             result = await resp.json()
-            self.gfycats = result.get('publishedGfys')
+            if resp.status == 200:
+                self.gfycats = result.get('publishedGfys')
+            else:
+                raise Exception(result.get('message'))
 
     async def get_random_gfycat(self):
         if self.gfycats is None:

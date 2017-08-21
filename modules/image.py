@@ -43,7 +43,7 @@ class LocalImage(object):
                 with open(self.get_random_image(), mode="rb") as file:
                     await self.client.send_file(destination, file)
         except discord.errors.Forbidden as e:
-            logger.warning("[{}:{}][{}]: {}".format(str(destination.server), destination.server.id,str(destination), str(e)))
+            logger.warning("[{}:{}][{}]: {}".format(str(destination.server), destination.server.id, str(destination), str(e)))
             await self.client.send_message(destination, "No permission to send an attachment")
 
 

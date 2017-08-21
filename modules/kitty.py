@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import discord
+import logging
 from event import Event
 from module import Module
 from modules.image import LocalImage
 from exceptions import ConfigException
 from apis import Gfycat
+
+logger = logging.getLogger(__name__)
 
 
 class Kitty(Module, LocalImage):
@@ -26,9 +29,9 @@ class Kitty(Module, LocalImage):
         """
         Discord's on_ready event.
         """
-        commands = ["!cat <int>"]
+        commands = ["{} <int>".format(self.config.get('keyword'))]
         if self.gfycat is not None:
-            commands.append("!catvid")
+            commands.append(self.gfycat.config.get('keyword'))
         await self.client.change_presence(game=discord.Game(name=", ".join(commands)))
         print('Kitty module loaded')
 
@@ -57,5 +60,9 @@ class Kitty(Module, LocalImage):
                 else:
                     await self.send_image(message.channel)
             elif split[0].lower() == self.gfycat.config.get('keyword'):
-                url = await self.gfycat.get_random_gfycat()
+                try:
+                    url = await self.gfycat.get_random_gfycat()
+                except Exception as e:
+                    logging.error(e)
+                    url = e
                 await self.client.send_message(message.channel, url)
