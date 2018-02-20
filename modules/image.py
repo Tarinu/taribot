@@ -44,7 +44,10 @@ class LocalImage(object):
                     await self.client.send_file(destination, file)
         except discord.errors.Forbidden as e:
             logger.warning("[{}:{}][{}]: {}".format(str(destination.server), destination.server.id, str(destination), str(e)))
-            await self.client.send_message(destination, "No permission to send an attachment")
+            try:
+                await self.client.send_message(destination, "No permission to send an attachment")
+            except discord.errors.Forbidden as e:
+                logger.warning("[{}:{}][{}]: {}".format(str(destination.server), destination.server.id, str(destination), str(e)))
 
 
 class WebImage(object):
