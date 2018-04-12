@@ -71,8 +71,8 @@ class Server(object):
             for attachment in message.attachments:
                 output.append(attachment['url'])
         return "[{}][{}][{}] {}: {}".format(
-            message.timestamp.replace(tzinfo=timezone.utc).astimezone(tz=None),
-            str(message.server) if message.server is not None else '-',
+            message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None),
+            str(message.guild) if message.guild is not None else '-',
             str(message.channel),
             message.author.name,
             ' '.join(output)

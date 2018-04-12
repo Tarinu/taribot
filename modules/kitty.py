@@ -15,10 +15,11 @@ class Kitty(Module, LocalImage):
     def __init__(self, server, config):
         Module.__init__(self, server)
         try:
-            LocalImage.__init__(self, config['location'], server.client)
+            LocalImage.__init__(self, config['location'])
         except KeyError:
             raise ConfigException("Kitty module is missing 'location' config")
         self.gfycat = None
+        self.client = server.client
         if config.get('gfycat', {}).get('enabled', False):
             self.gfycat = Gfycat(config.get('gfycat'))
         self.config = config  # type: dict
@@ -32,7 +33,7 @@ class Kitty(Module, LocalImage):
         commands = ["{} <int>".format(self.config.get('keyword'))]
         if self.gfycat is not None:
             commands.append(self.gfycat.config.get('keyword'))
-        await self.client.change_presence(game=discord.Game(name=", ".join(commands)))
+        await self.client.change_presence(activity=discord.Game(name=", ".join(commands)))
         print('Kitty module loaded')
 
     async def on_message(self, message: discord.Message):
@@ -44,7 +45,7 @@ class Kitty(Module, LocalImage):
         """
         content = message.clean_content.strip()  # type: str
         split = content.split()  # type: [str]
-        if len(split) >= 1 and (message.channel.is_private or not self.config['private_only'] and not message.channel.is_private):
+        if len(split) >= 1 and (isinstance(message.channel, discord.abc.PrivateChannel) or not self.config['private_only'] and not isinstance(message.channel, discord.abc.PrivateChannel)):
             if split[0].lower() == self.config['keyword']:
                 if len(split) >= 2:
                     if split[1].isnumeric():
@@ -52,11 +53,11 @@ class Kitty(Module, LocalImage):
                         if self.config['max_pics'] >= count >= 1:
                             await self.send_image(message.channel, count)
                         elif count <= 1:
-                            await self.client.send_message(message.channel, 'Picture count has to be at least 1')
+                            await message.channel.send('Picture count has to be at least 1')
                         else:
-                            await self.client.send_message(message.channel, 'Picture count can be maximum {}'.format(self.config['max_pics']))
+                            await message.channel.send('Picture count can be maximum {}'.format(self.config['max_pics']))
                     else:
-                        await self.client.send_message(message.channel, 'Picture count has to be an integer')
+                        await message.channel.send('Picture count has to be an integer')
                 else:
                     await self.send_image(message.channel)
             elif split[0].lower() == self.gfycat.config.get('keyword'):
@@ -65,4 +66,4 @@ class Kitty(Module, LocalImage):
                 except Exception as e:
                     logging.error(e)
                     url = e
-                await self.client.send_message(message.channel, url)
+                await message.channel.send(url)
