@@ -69,7 +69,7 @@ class Server(object):
             output.append(message.clean_content.strip())
         if message.attachments:
             for attachment in message.attachments:
-                output.append(attachment['url'])
+                output.append(attachment.url)
         return "[{}][{}][{}] {}: {}".format(
             message.created_at.replace(tzinfo=timezone.utc).astimezone(tz=None),
             str(message.guild) if message.guild is not None else '-',
