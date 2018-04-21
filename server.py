@@ -2,10 +2,9 @@
 
 import discord
 import json
+import modules
 from datetime import timezone
 from collections import defaultdict
-import logging
-import modules
 from event import Event
 
 

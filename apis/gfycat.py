@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import aiohttp
-import json
 from random import choice
 
 
