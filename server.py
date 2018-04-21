@@ -3,9 +3,13 @@
 import discord
 import json
 import modules
+import logging
+import sys
 from datetime import timezone
 from collections import defaultdict
 from event import Event
+
+logger = logging.getLogger(__name__)
 
 
 class Server(object):
@@ -16,6 +20,7 @@ class Server(object):
         self.client.event(self.on_ready)
         self.client.event(self.on_message_delete)
         self.client.event(self.on_message)
+        self.client.event(self.on_error)
         self.modules = {}  # type: dict
         self.events = defaultdict(list)  # type: defaultdict
         for module in self.config['modules']:
@@ -53,6 +58,9 @@ class Server(object):
             print(self.format_message(message))
         for func in self.events[Event.ON_MESSAGE]:
             await func(message)
+
+    async def on_error(self, event, *args, **kwargs):
+        logger.exception("Uncaught Exception in {}".format(event), exc_info=sys.exc_info())
 
     @staticmethod
     def format_message(message: discord.Message):
