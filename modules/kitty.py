@@ -2,6 +2,7 @@
 
 import discord
 import logging
+from typing import Union
 from event import Event
 from module import Module
 from modules.image import LocalImage
@@ -47,23 +48,34 @@ class Kitty(Module, LocalImage):
         split = content.split()  # type: [str]
         if len(split) >= 1 and (isinstance(message.channel, discord.abc.PrivateChannel) or not self.config['private_only'] and not isinstance(message.channel, discord.abc.PrivateChannel)):
             if split[0].lower() == self.config['keyword']:
+                count = 1
                 if len(split) >= 2:
-                    if split[1].isnumeric():
-                        count = int(split[1])
-                        if self.config['max_pics'] >= count >= 1:
-                            await self.send_image(message.channel, count)
-                        elif count <= 1:
-                            await message.channel.send('Picture count has to be at least 1')
-                        else:
-                            await message.channel.send('Picture count can be maximum {}'.format(self.config['max_pics']))
-                    else:
-                        await message.channel.send('Picture count has to be an integer')
-                else:
-                    await self.send_image(message.channel)
-            elif split[0].lower() == self.gfycat.config.get('keyword'):
+                    count = split[1]
                 try:
-                    url = await self.gfycat.get_random_gfycat()
-                except Exception as e:
-                    logging.error(e)
-                    url = e
-                await message.channel.send(url)
+                    await self.send_cat(message.channel, self.validate_send_cat_count(count))
+                except ValueError as e:
+                    await message.channel.send(e)
+            elif self.gfycat is not None and split[0].lower() == self.gfycat.config.get('keyword'):
+                await self.send_catvid(message.channel)
+
+    async def send_cat(self, messageable: discord.abc.Messageable, count: int = 1):
+        await self.send_image(messageable, count)
+
+    def validate_send_cat_count(self, count: Union[int, str]):
+        try:
+            count = int(count)
+        except ValueError:
+            raise ValueError('Picture count has to be an integer')
+        if count > self.config.get('max_pics'):
+            raise ValueError('Picture count can be maximum {}'.format(self.config.get('max_pics')))
+        elif count < 1:
+            raise ValueError('Picture count has to be at least 1')
+        return count
+
+    async def send_catvid(self, messageable: discord.abc.Messageable):
+        try:
+            message = await self.gfycat.get_random_gfycat()
+        except Exception as e:
+            logger.exception("Unable to get vid from gfycat", exc_info=e)
+            message = e
+        await messageable.send(message)
