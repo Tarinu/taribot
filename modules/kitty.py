@@ -59,9 +59,24 @@ class Kitty(Module, LocalImage):
                 await self.send_catvid(message.channel)
 
     async def send_cat(self, messageable: discord.abc.Messageable, count: int = 1):
+        """
+        Sends a random image to user/channel.
+        If the count comes from user, you should run it through @meth:`validate_send_cat_count`
+            to make sure the count is valid
+
+        @param messageable:
+        @param count:
+        """
         await self.send_image(messageable, count)
 
-    def validate_send_cat_count(self, count: Union[int, str]):
+    def validate_send_cat_count(self, count: Union[int, str]) -> int:
+        """
+        Validated that count is a number and it's between 1 and maximum number of pics allowed in config file
+
+        @param count:
+        @return: count as integer
+        @raise ValueError: if count is not a valid number
+        """
         try:
             count = int(count)
         except ValueError:

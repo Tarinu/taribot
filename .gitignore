@@ -6,3 +6,4 @@ __pycache__/
 .idea
 logs
 config.json
+taribot.db
