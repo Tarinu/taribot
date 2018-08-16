@@ -14,8 +14,8 @@ class Connection(aiosqlite.Connection):
     async def __aenter__(self):
         if not self._started.is_set():
             self.start()
-        else:
-            self._running = True
-            self.run()
         await self._connect()
         return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        pass
