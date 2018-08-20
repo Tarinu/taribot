@@ -4,6 +4,10 @@
     "servers": [
         "123456789"
     ],
+    "database": {
+        "enabled": false,
+        "database": "taribot.db"
+    },
     "modules": {
         "Kitty": {
             "enabled": false,
@@ -12,7 +16,7 @@
             "location": "C:/pictures/",
             "max_pics": 5,
             "gfycat": {
-                "enabled": true,
+                "enabled": false,
                 "keyword": "!catvid",
                 "album_id": "",
                 "token_data": {

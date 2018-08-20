@@ -22,8 +22,8 @@ class Server(object):
         self.client.event(self.on_message_delete)
         self.client.event(self.on_message)
         self.client.event(self.on_error)
-        # if self.config.get('database', {}).get('enabled', False):
-        #    self.db = Database(self.config.get('database'))
+        if self.config.get('database', {}).get('enabled', False):
+            self.db = Database(self.config.get('database'))
         self.modules = {}  # type: dict
         self.events = defaultdict(list)  # type: defaultdict
         for module in self.config.get('modules', []):
