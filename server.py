@@ -5,6 +5,7 @@ import json
 import modules
 import logging
 import sys
+from database import Database
 from datetime import timezone
 from collections import defaultdict
 from event import Event
@@ -21,11 +22,13 @@ class Server(object):
         self.client.event(self.on_message_delete)
         self.client.event(self.on_message)
         self.client.event(self.on_error)
+        if self.config.get('database', {}).get('enabled', False):
+            self.db = Database(self.config.get('database'))
         self.modules = {}  # type: dict
         self.events = defaultdict(list)  # type: defaultdict
-        for module in self.config['modules']:
-            if self.config['modules'][module]['enabled']:
-                self.modules[module] = getattr(modules, module)(self, self.config['modules'][module])
+        for module in self.config.get('modules', []):
+            if self.config.get('modules', {}).get(module, {}).get('enabled', False):
+                self.modules[module] = getattr(modules, module)(self, self.config.get('modules').get(module))
 
     async def on_ready(self):
         """
