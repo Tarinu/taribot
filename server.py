@@ -9,6 +9,7 @@ from database import Database
 from datetime import timezone
 from collections import defaultdict
 from event import Event
+from exceptions import ConfigException
 
 logger = logging.getLogger(__name__)
 
@@ -17,18 +18,31 @@ class Server(object):
     def __init__(self):
         with open("config.json") as file:
             self.config = json.load(file)
+        self.prefix = self.config.get('prefix', '')  # type: str
+        if not isinstance(self.prefix, str):
+            raise ConfigException("Prefix has to be a string")
+        if not self.prefix:
+            raise ConfigException("Prefix can't be empty")
+        if self.config.get('database', {}).get('enabled', False):
+            self.db = Database(self.config.get('database'))
+
+        self.events = defaultdict(list)  # type: defaultdict
+        self.modules = {}  # type: dict
+        config_modules = self.config.get('modules', {})  # type: dict
+        if not isinstance(config_modules, dict):
+            raise ConfigException("Modules has to be a dict/object")
+        for module in config_modules:
+            config_module = config_modules.get(module, {})
+            if not isinstance(config_module, dict):
+                raise ConfigException("{} module has to be dict/object".format(module))
+            if config_module.get('enabled', False):
+                self.modules[module] = getattr(modules, module)(self, config_modules.get(module))
+
         self.client = discord.Client()  # type: discord.Client
         self.client.event(self.on_ready)
         self.client.event(self.on_message_delete)
         self.client.event(self.on_message)
         self.client.event(self.on_error)
-        if self.config.get('database', {}).get('enabled', False):
-            self.db = Database(self.config.get('database'))
-        self.modules = {}  # type: dict
-        self.events = defaultdict(list)  # type: defaultdict
-        for module in self.config.get('modules', []):
-            if self.config.get('modules', {}).get(module, {}).get('enabled', False):
-                self.modules[module] = getattr(modules, module)(self, self.config.get('modules').get(module))
 
     async def on_ready(self):
         """

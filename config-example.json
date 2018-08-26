@@ -1,9 +1,7 @@
 {
     "bot": true,
     "token": "bottoken",
-    "servers": [
-        "123456789"
-    ],
+    "prefix": ";",
     "database": {
         "enabled": false,
         "database": "taribot.db"
@@ -11,13 +9,12 @@
     "modules": {
         "Kitty": {
             "enabled": false,
-            "keyword": "!cat",
-            "private_only": false,
+            "keyword": "cat",
             "location": "C:/pictures/",
             "max_pics": 5,
             "gfycat": {
                 "enabled": false,
-                "keyword": "!catvid",
+                "keyword": "catvid",
                 "album_id": "",
                 "token_data": {
                     "client_id": "",
