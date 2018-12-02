@@ -10,3 +10,7 @@ class Event(Enum):
     ON_READY = auto()
     ON_MESSAGE = auto()
     ON_MESSAGE_DELETE = auto()
+
+    @classmethod
+    def has_value(cls, value):
+        return any(value == item for item in cls)

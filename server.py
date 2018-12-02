@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import asyncio
 import discord
 import json
 import modules
@@ -26,7 +27,7 @@ class Server(object):
         if self.config.get('database', {}).get('enabled', False):
             self.db = Database(self.config.get('database'))
 
-        self.events = defaultdict(list)  # type: defaultdict
+        self._events = defaultdict(list)  # type: defaultdict
         self.modules = {}  # type: dict
         config_modules = self.config.get('modules', {})  # type: dict
         if not isinstance(config_modules, dict):
@@ -52,7 +53,7 @@ class Server(object):
         print(self.client.user.name)
         print(self.client.user.id)
         print('------')
-        for func in self.events[Event.ON_READY]:
+        for func in self._events[Event.ON_READY]:
             await func()
 
     async def on_message_delete(self, message: discord.Message):
@@ -62,7 +63,7 @@ class Server(object):
 
         @param message: Message object given back from the discord's api
         """
-        for func in self.events[Event.ON_MESSAGE_DELETE]:
+        for func in self._events[Event.ON_MESSAGE_DELETE]:
             await func(message)
 
     async def on_message(self, message: discord.Message):
@@ -73,11 +74,23 @@ class Server(object):
         """
         if message.author != self.client.user:
             print(self.format_message(message))
-        for func in self.events[Event.ON_MESSAGE]:
+        for func in self._events[Event.ON_MESSAGE]:
             await func(message)
 
     async def on_error(self, event, *args, **kwargs):
         logger.exception("Uncaught Exception in {}".format(event), exc_info=sys.exc_info())
+
+    def add_event(self, event: Event, func: callable):
+        """
+        @raise discord.ClientException: If func is not async function or event not supported
+        @param event: Event enum value
+        @param func: Async function
+        """
+        if not asyncio.iscoroutinefunction(func):
+            raise discord.ClientException("event registered must be a coroutine/async function")
+        if not Event.has_value(event):
+            raise discord.ClientException("Given event not supported")
+        self._events[event].append(func)
 
     @staticmethod
     def format_message(message: discord.Message):

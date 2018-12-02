@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
-import os
 from unittest import TestCase
 from database import Database
+import os
 
 
 class TestDatabase(TestCase):
@@ -18,8 +18,6 @@ class TestDatabase(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        loop = asyncio.new_event_loop()
-        loop.run_until_complete(cls.database.connection.close())
         os.remove(cls.test_database_name)
 
     def setUp(self):

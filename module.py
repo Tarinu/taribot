@@ -14,4 +14,4 @@ class Module(object):
         @param event: Type of event
         @param func: Callback function for the event
         """
-        self.server.events[event].append(func)
+        self.server.add_event(event, func)
