@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from event import Event
+from abc import ABC
 
 
-class Module(object):
+class Module(ABC):
     def __init__(self, server):
         self.server = server
 

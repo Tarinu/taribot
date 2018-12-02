@@ -20,6 +20,7 @@ class Server(object):
         with open("config.json") as file:
             self.config = json.load(file)
         self.prefix = self.config.get('prefix', '')  # type: str
+        self.commands = {}
         if not isinstance(self.prefix, str):
             raise ConfigException("Prefix has to be a string")
         if not self.prefix:
@@ -44,6 +45,7 @@ class Server(object):
         self.client.event(self.on_message_delete)
         self.client.event(self.on_message)
         self.client.event(self.on_error)
+        self.modules['schedule'] = modules.Scheduler(self, {})
 
     async def on_ready(self):
         """
@@ -91,6 +93,11 @@ class Server(object):
         if not Event.has_value(event):
             raise discord.ClientException("Given event not supported")
         self._events[event].append(func)
+
+    def add_command(self, command: str, callback: callable):
+        if command in self.commands:
+            raise ValueError("Command {} already registered".format(command))
+        self.commands[command] = callback
 
     @staticmethod
     def format_message(message: discord.Message):

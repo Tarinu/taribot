@@ -24,10 +24,12 @@ class Database:
 
     async def fetch_one(self, sql: str, *args):
         async with aiosqlite.connect(self.database) as connection:  # type: aiosqlite.Connection
+            connection.row_factory = aiosqlite.Row
             cursor = await connection.execute(sql, args)
             return await cursor.fetchone()
 
     async def fetch_all(self, sql: str, *args):
         async with aiosqlite.connect(self.database) as connection:  # type: aiosqlite.Connection
+            connection.row_factory = aiosqlite.Row
             cursor = await connection.execute(sql, args)
             return await cursor.fetchall()

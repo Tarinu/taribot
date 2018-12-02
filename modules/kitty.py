@@ -26,6 +26,7 @@ class Kitty(Module, LocalImage):
             raise ConfigException("Kitty module keyword has to be string")
         if not config_keyword:
             raise ConfigException("Kitty module keyword can't be empty")
+        self.server.add_command(config_keyword, self.send_cat)
         self.keyword = self.server.prefix + config_keyword
 
         gfycat_config = config.get('gfycat', {})
@@ -38,6 +39,7 @@ class Kitty(Module, LocalImage):
                 raise ConfigException("Kitty module keyword has to be string")
             if not gfycat_keyword:
                 raise ConfigException("Kitty module keyword can't be empty")
+            self.server.add_command(gfycat_keyword, self.send_cat)
             self.gfycat = Gfycat(gfycat_config)
             self.gfycat_keyword = self.server.prefix + gfycat_keyword
 
@@ -69,14 +71,11 @@ class Kitty(Module, LocalImage):
                 count = 1
                 if len(split) >= 2:
                     count = split[1]
-                try:
-                    await self.send_cat(message.channel, self.validate_send_cat_count(count))
-                except ValueError as e:
-                    await message.channel.send(e)
+                await self.send_cat(message.channel, count)
             elif self.gfycat is not None and keyword == self.gfycat_keyword:
                 await self.send_catvid(message.channel)
 
-    async def send_cat(self, messageable: discord.abc.Messageable, count: int = 1):
+    async def send_cat(self, messageable: discord.abc.Messageable, count: int = 1, *args):
         """
         Sends a random image to user/channel.
         If the count comes from user, you should run it through @meth:`validate_send_cat_count`
@@ -85,7 +84,10 @@ class Kitty(Module, LocalImage):
         @param messageable
         @param count: number of pictures to send
         """
-        await self.send_image(messageable, count)
+        try:
+            await self.send_image(messageable, self.validate_send_cat_count(count))
+        except ValueError as e:
+            await messageable.send(e)
 
     def validate_send_cat_count(self, count: Union[int, str]) -> int:
         """
@@ -105,7 +107,7 @@ class Kitty(Module, LocalImage):
             raise ValueError('Picture count has to be at least 1')
         return count
 
-    async def send_catvid(self, messageable: discord.abc.Messageable):
+    async def send_catvid(self, messageable: discord.abc.Messageable, *args):
         try:
             message = await self.gfycat.get_random_gfycat()
         except Exception as e:
