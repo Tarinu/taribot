@@ -71,7 +71,8 @@ class Scheduler(Module):
                     await message.channel.send("Unable to remove scheduled task")
 
     async def on_ready(self):
-        await self.init_scheduler()
+        if not self.scheduler.running:
+            await self.init_scheduler()
 
     def validate_interval(self, count: Union[int, str]) -> int:
         try:
