@@ -2,10 +2,11 @@
 
 import asyncio
 import discord
-import json
 import modules
 import logging
 import sys
+import modules.abc
+from typing import Dict
 from database import Database
 from datetime import timezone
 from collections import defaultdict
@@ -16,21 +17,21 @@ logger = logging.getLogger(__name__)
 
 
 class Server(object):
-    def __init__(self):
-        with open("config.json") as file:
-            self.config = json.load(file)
-        self.prefix = self.config.get('prefix', '')  # type: str
-        self.commands = {}
+    def __init__(self, config):
+        self.config = config
+        self.prefix = config.get('prefix', '!')  # type: str
+        self.print_messages = config.get("print_messages", False)
+        self.commands = {}  # type: Dict[str, modules.abc.Command]
         if not isinstance(self.prefix, str):
             raise ConfigException("Prefix has to be a string")
         if not self.prefix:
             raise ConfigException("Prefix can't be empty")
-        if self.config.get('database', {}).get('enabled', False):
-            self.db = Database(self.config.get('database'))
+        if config.get('database', {}).get('enabled', False):
+            self.db = Database(config.get('database'))
 
         self._events = defaultdict(list)  # type: defaultdict
-        self.modules = {}  # type: dict
-        config_modules = self.config.get('modules', {})  # type: dict
+        self._modules = {}  # type: dict
+        config_modules = config.get('modules', {})  # type: dict
         if not isinstance(config_modules, dict):
             raise ConfigException("Modules has to be a dict/object")
         for module in config_modules:
@@ -38,14 +39,24 @@ class Server(object):
             if not isinstance(config_module, dict):
                 raise ConfigException("{} module has to be dict/object".format(module))
             if config_module.get('enabled', False):
-                self.modules[module] = getattr(modules, module)(self, config_modules.get(module))
+                self._modules[module] = getattr(modules, module)(self, config_modules.get(module))
 
-        self.client = discord.Client()  # type: discord.Client
-        self.client.event(self.on_ready)
-        self.client.event(self.on_message_delete)
-        self.client.event(self.on_message)
-        self.client.event(self.on_error)
-        self.modules['schedule'] = modules.Scheduler(self, {})
+        self.command_statuses = []  # type: [str]
+        for command_name in self.commands:
+            command = self.commands.get(command_name)
+            if command.status() is not None:
+                self.command_statuses.append(command.status().format(name=self.prefix + command_name))
+
+        self._client = discord.Client()  # type: discord.Client
+        self._client.event(self.on_ready)
+        self._client.event(self.on_message_delete)
+        self._client.event(self.on_message)
+        self._client.event(self.on_error)
+        # self.modules['schedule'] = modules.Scheduler(self, {})
+
+    @property
+    def client(self) -> discord.Client:
+        return self._client
 
     async def on_ready(self):
         """
@@ -57,6 +68,7 @@ class Server(object):
         print('------')
         for func in self._events[Event.ON_READY]:
             await func()
+        await self.client.change_presence(activity=discord.Game(name=", ".join(self.command_statuses)))
 
     async def on_message_delete(self, message: discord.Message):
         """
@@ -75,7 +87,18 @@ class Server(object):
         @param message:
         """
         if message.author != self.client.user:
-            print(self.format_message(message))
+            if self.print_messages:
+                print(self.format_message(message))
+            content = message.clean_content.strip()  # type: str
+            split = content.split()  # type: [str]
+            if len(split) > 0:
+                keyword = split[0].lower()
+                if keyword.startswith(self.prefix):
+                    keyword = keyword[len(self.prefix):]
+                    if keyword in self.commands:
+                        command = self.commands.get(keyword)  # type: modules.abc.Command
+                        await command.run(message, *split[1:])
+
         for func in self._events[Event.ON_MESSAGE]:
             await func(message)
 
@@ -94,10 +117,19 @@ class Server(object):
             raise discord.ClientException("Given event not supported")
         self._events[event].append(func)
 
-    def add_command(self, command: str, callback: callable):
-        if command in self.commands:
+    def add_command(self, command: modules.abc.Command):
+        """
+        Registers a new command users can call
+        @param command:
+        @raise TypeError: If command isn't modules.abc.Command subclass
+        @raise ValueError: If command with the same name already is registered
+        """
+        if not isinstance(command, modules.abc.Command):
+            raise TypeError("command has to inherit the modules.abc.Command class")
+        name = command.name
+        if name in self.commands:
             raise ValueError("Command {} already registered".format(command))
-        self.commands[command] = callback
+        self.commands[name] = command
 
     @staticmethod
     def format_message(message: discord.Message):
@@ -126,4 +158,4 @@ class Server(object):
         """
         Main method that starts the whole server
         """
-        self.client.run(self.config['token'], bot=self.config['bot'])
+        self.client.run(self.config.get('token'), bot=self.config.get('bot'))

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class LocalImage(object):
-    def __init__(self, location: str, *, max_width: int=1920, max_height: int=1920):
+    def __init__(self, location: str, *, max_width: int = 1920, max_height: int = 1920):
         self.location = location.strip()
         if not self.location.endswith('/'):
             self.location += '/'

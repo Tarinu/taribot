@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from server import Server
 import logging.handlers
 import pathlib
+import json
+from server import Server
 
 if __name__ == '__main__':
     pathlib.Path('logs').mkdir(exist_ok=True)
@@ -14,4 +15,6 @@ if __name__ == '__main__':
                             logging.StreamHandler(),
                             logging.handlers.RotatingFileHandler('logs/taribot.log', encoding='utf8', maxBytes=1024 * 1024, backupCount=10)
                         ])
-    Server().run()
+
+    with open("config.json") as file:
+        Server(json.load(file)).run()

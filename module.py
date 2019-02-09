@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import annotations
+import modules.abc
 from event import Event
 from abc import ABC
 
 
 class Module(ABC):
     def __init__(self, server):
-        self.server = server
+        self._server = server
+
+    @property
+    def server(self):
+        return self._server
 
     def add_handler(self, event: Event, func: callable):
         """
@@ -16,3 +22,6 @@ class Module(ABC):
         @param func: Callback function for the event
         """
         self.server.add_event(event, func)
+
+    def add_command(self, command: modules.abc.Command):
+        self.server.add_command(command)
