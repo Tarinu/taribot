@@ -25,7 +25,7 @@ class Gfycat(object):
 
     async def get_album_gfycats(self):
         self.before_request()
-        async with self.session.get('https://api.gfycat.com/v1/me/albums/'+self.config['album_id'],
+        async with self.session.get('https://api.gfycat.com/v1/me/albums/'+self.config.get('album_id'),
                                     headers=self.header) as resp:
             result = await resp.json()
             if resp.status == 200:

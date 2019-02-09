@@ -2,3 +2,4 @@
 
 from .kitty import Kitty
 from .image import LocalImage
+from .scheduler import Scheduler
