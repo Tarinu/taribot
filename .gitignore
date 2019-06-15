@@ -4,4 +4,7 @@ __pycache__/
 *$py.class
 
 .idea
+.venv
+logs
 config.json
+taribot.db

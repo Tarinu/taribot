@@ -1,19 +1,21 @@
 {
     "bot": true,
     "token": "bottoken",
-    "servers": [
-        "123456789"
-    ],
+    "prefix": ";",
+    "print_messages": false,
+    "database": {
+        "enabled": false,
+        "database": "taribot.db"
+    },
     "modules": {
         "Kitty": {
             "enabled": false,
-            "keyword": "!cat",
-            "private_only": false,
+            "keyword": "cat",
             "location": "C:/pictures/",
-            "max_pics": 5,
+            "max_images": 5,
             "gfycat": {
-                "enabled": true,
-                "keyword": "!catvid",
+                "enabled": false,
+                "keyword": "catvid",
                 "album_id": "",
                 "token_data": {
                     "client_id": "",
@@ -23,6 +25,11 @@
                     "grant_type": "password"
                 }
             }
+        },
+        "Scheduler": {
+            "enabled": true,
+            "keyword": "schedule",
+            "remove_keyword": "unschedule"
         }
     }
 }
