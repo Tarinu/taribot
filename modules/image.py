@@ -49,9 +49,9 @@ class LocalImage(object):
                 bytes_io = BytesIO()
                 image.save(bytes_io, "JPEG")
                 _, filename = os.path.split(path)
-                image_byte_value = bytes_io.getvalue()
-                bytes_sent += len(image_byte_value)
-                files.append(discord.File(image_byte_value, filename))
+                bytes_sent += len(bytes_io.getvalue())
+                bytes_io.seek(0)
+                files.append(discord.File(bytes_io, filename))
             logger.info("Trying to send {} KB".format(bytes_sent / 1024))
             await channel.send(files=files)
         except discord.errors.Forbidden as e:

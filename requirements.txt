@@ -1,5 +1,5 @@
-git+https://github.com/Rapptz/discord.py@66e5033#egg=discord.py
-Pillow~=5.1
-aiosqlite~=0.3
+discord.py~=1.2
+Pillow~=6.0
+aiosqlite~=0.10
 APScheduler~=3.5
 yoyo-migrations~=6.0
