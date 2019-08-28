@@ -3,8 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.vscode
+.devcontainer
 .idea
 .venv
+
+.env
 logs
 config.json
 taribot.db

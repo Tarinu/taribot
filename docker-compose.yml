@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      # If you change the container path, make sure to match it with config.json file
+      # Or if you dont need it at all, you can just comment it
+      - ${KITTY_MODULE_PATH}:/srv/taribot:ro
+    working_dir: /app
+    command: ["python", "main.py"]

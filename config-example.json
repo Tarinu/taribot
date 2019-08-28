@@ -11,7 +11,7 @@
         "Kitty": {
             "enabled": false,
             "keyword": "cat",
-            "location": "C:/pictures/",
+            "location": "/srv/taribot",
             "max_images": 5,
             "gfycat": {
                 "enabled": false,
