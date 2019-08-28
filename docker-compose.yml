@@ -11,4 +11,5 @@ services:
       # Or if you dont need it at all, you can just comment it
       - ${KITTY_MODULE_PATH}:/srv/taribot:ro
     working_dir: /app
+    restart: always
     command: ["python", "main.py"]
