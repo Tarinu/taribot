@@ -1,0 +1,16 @@
+FROM python:3.7-alpine
+
+ENV PYTHONUNBUFFERED 1
+
+# Copy requirements.txt (if found) to a temp locaition so we can install it.
+COPY requirements.txt /tmp/pip-tmp/
+
+# Configure apk and install packages
+RUN apk --no-cache add build-base jpeg-dev zlib-dev \
+    # Install pylint
+    && pip install --no-cache-dir pylint \
+    # Update Python environment based on requirements.txt (if presenet)
+    && if [ -f "/tmp/pip-tmp/requirements.txt" ]; then pip install --no-cache-dir -r /tmp/pip-tmp/requirements.txt; fi \
+    && rm -rf /tmp/pip-tmp \
+    # Clean up installed packages
+    && apk del build-base
