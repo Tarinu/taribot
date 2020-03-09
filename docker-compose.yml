@@ -5,16 +5,10 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-      args:
-        # Disable PIP cache, there's no way of doing this currently from poetry
-        PIP_NO_CACHE_DIR: 1
-        # This will also be set as an ENV variable, to prevent the creation of venv when running the bot
-        # Disabling venv makes the image ~10MB smaller, which is about ~8% smaller
-        POETRY_VIRTUALENVS_CREATE: "false"
     volumes:
       - .:/app
       # If you change the container path, make sure to match it with config.json file
       # Or if you dont need it at all, you can just comment it
       - ${KITTY_MODULE_PATH}:/srv/taribot:ro
     working_dir: /app
-    command: ["poetry", "run", "python", "main.py"]
+    command: ["python", "main.py"]
