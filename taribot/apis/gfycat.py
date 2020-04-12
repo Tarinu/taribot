@@ -2,15 +2,16 @@
 
 import aiohttp
 from random import choice
+from typing import Optional
 
 
 class Gfycat(object):
     def __init__(self, config: dict):
         self.config = config
-        self.token = None  # type: dict
-        self.header = None  # type: dict
-        self.session = None  # type: aiohttp.ClientSession
-        self.gfycats = None  # type: dict
+        self.token = None  # type: Optional[dict]
+        self.header = None  # type: Optional[dict]
+        self.session = None  # type: Optional[aiohttp.ClientSession]
+        self.gfycats = None  # type: Optional[dict]
 
     def before_request(self):
         if self.session is None:

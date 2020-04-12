@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import annotations
-import modules.abc
-from event import Event
+import taribot.modules.abc
+from taribot.event import Event
 from abc import ABC
 
 
@@ -23,5 +23,5 @@ class Module(ABC):
         """
         self.server.add_event(event, func)
 
-    def add_command(self, command: modules.abc.Command):
+    def add_command(self, command: taribot.modules.abc.Command):
         self.server.add_command(command)

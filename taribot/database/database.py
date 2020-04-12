@@ -4,9 +4,8 @@ import aiosqlite
 
 
 class Database:
-    def __init__(self, config: dict):
-        self.config = config
-        self.database = config.get('database', 'taribot.db')
+    def __init__(self, database: str):
+        self.database = database
 
     async def create_table(self, table_name: str, columns: dict):
         column_list = []

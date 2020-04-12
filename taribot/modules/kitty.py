@@ -2,20 +2,20 @@
 
 import discord
 import logging
-import modules.abc
-from module import Module
+from taribot.modules.abc import SchedulableCommand
+from taribot.module import Module
 from typing import Union
-from event import Event
-from modules.image import LocalImage
-from exceptions import ConfigException
-from apis import Gfycat
+from taribot.event import Event
+from taribot.modules import LocalImage
+from taribot.config import ConfigException
+from taribot.apis import Gfycat
 
 logger = logging.getLogger(__name__)
 
 
 class Kitty(Module, LocalImage):
-    def __init__(self, server, config):
-        self.config = config  # type: dict
+    def __init__(self, server, config: dict):
+        self.config = config
         Module.__init__(self, server)
         image_location = config.get('location')
         if not image_location:
@@ -58,7 +58,7 @@ class Kitty(Module, LocalImage):
         print('Kitty module loaded')
 
 
-class CatCommand(modules.abc.SchedulableCommand):
+class CatCommand(SchedulableCommand):
     def __init__(self, module: Kitty, name: str, max_images: int):
         super(CatCommand, self).__init__(module, name)
         self.max_images = max_images
@@ -112,7 +112,7 @@ class CatCommand(modules.abc.SchedulableCommand):
         return count
 
 
-class CatvidCommand(modules.abc.SchedulableCommand):
+class CatvidCommand(SchedulableCommand):
     def __init__(self, module: Kitty, name: str, gfycat: Gfycat):
         super(CatvidCommand, self).__init__(module, name)
         self.gfycat = gfycat

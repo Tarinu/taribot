@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from module import Module
+import taribot.module
 from abc import ABC, abstractmethod
 from typing import Union
 from discord import Message
@@ -8,8 +8,8 @@ from discord.abc import Messageable
 
 
 class Command(ABC):
-    def __init__(self, module: Module, name: str):
-        if not isinstance(module, Module):
+    def __init__(self, module: taribot.module.Module, name: str):
+        if not isinstance(module, taribot.module.Module):
             raise TypeError("module has to inherit Module class")
         self.module = module
         self._name = name.strip().lower()

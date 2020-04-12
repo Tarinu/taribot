@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from random import choice
-from exceptions import ConfigException
+from taribot.config import ConfigException
 from glob import glob
 from PIL import Image
 from io import BytesIO

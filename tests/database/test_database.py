@@ -3,7 +3,7 @@
 
 import asyncio
 from unittest import TestCase
-from database import Database
+from taribot.database import Database
 import os
 
 

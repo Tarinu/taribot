@@ -4,13 +4,13 @@ import apscheduler.job
 import logging
 import discord
 import sqlite3
+import taribot.modules.abc
 
 from discord import Message
-from discord.abc import Messageable
 
-import modules.abc
-from event import Event
-from module import Module
+from taribot.modules.abc import Command, SchedulableCommand
+from taribot.event import Event
+from taribot.module import Module
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from typing import Union
 
@@ -33,12 +33,12 @@ class Scheduler(Module):
 
     async def run(self, user_id: int, command: str):
         command = command.split(' ')
-        command_object = self.server.commands.get(command[0], None)  # type: modules.abc.SchedulableCommand
+        command_object = self.server.commands.get(command[0], None)  # type: SchedulableCommand
         if command_object is None:
             logging.error("Command {} not available. Removing schedule job".format(command[0]))
             self.remove_job(user_id)
             return False
-        elif not isinstance(command_object, modules.abc.SchedulableCommand):
+        elif not isinstance(command_object, SchedulableCommand):
             logging.warning("Command {} not schedulable. Removing schedule job".format(command[0]))
             self.remove_job(user_id)
             return False
@@ -72,7 +72,7 @@ class Scheduler(Module):
             job.remove()
 
 
-class ScheduleCommand(modules.abc.Command):
+class ScheduleCommand(Command):
     def __init__(self, module: Scheduler, name: str):
         super(ScheduleCommand, self).__init__(module, name)
 
@@ -80,7 +80,7 @@ class ScheduleCommand(modules.abc.Command):
         if len(args) > 1:
             cmd = args[0].lower()
             command = self.module.server.commands.get(cmd, None)
-            if isinstance(command, modules.abc.SchedulableCommand):
+            if isinstance(command, taribot.modules.abc.SchedulableCommand):
                 interval = args[-1]
                 try:
                     interval = self.validate_interval(interval)
@@ -98,7 +98,7 @@ class ScheduleCommand(modules.abc.Command):
             await message.channel.send("Not enough parameters given, should be minimum 2 (command name and interval)")
 
     def validate(self, command: str = None, *args, **kwargs):
-        return isinstance(self.module.server.commands.get(command, None), modules.abc.SchedulableCommand)
+        return isinstance(self.module.server.commands.get(command, None), SchedulableCommand)
 
     def validate_interval(self, count: Union[int, str]) -> int:
         try:
@@ -114,7 +114,7 @@ class ScheduleCommand(modules.abc.Command):
         self.module.add_job(user_id, command, interval)
 
 
-class UnscheduleCommand(modules.abc.Command):
+class UnscheduleCommand(Command):
     def __init__(self, module: Scheduler, name: str):
         super(UnscheduleCommand, self).__init__(module, name)
 
